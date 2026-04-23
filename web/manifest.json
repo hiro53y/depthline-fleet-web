@@ -1,0 +1,9 @@
+{
+  "name": "Depthline Fleet",
+  "short_name": "Depthline Fleet",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#020b11",
+  "theme_color": "#0c2430",
+  "description": "A maritime single-stage action game built with Flutter and Flame."
+}
