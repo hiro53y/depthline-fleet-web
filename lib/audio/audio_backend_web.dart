@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:html' as html;
+import 'dart:web_audio' as html;
 
 import 'audio_backend.dart';
 
