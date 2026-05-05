@@ -189,7 +189,7 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
               ),
               if (showRotateBanner) const WebRotateBanner(),
             ],
-          ),
+          );
         },
       ),
     );

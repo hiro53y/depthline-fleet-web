@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:js_util' as js_util;
 import 'dart:web_audio' as html;
 
 import 'audio_backend.dart';
@@ -98,8 +99,12 @@ class WebAudioBackend implements AudioBackend {
 
     oscillator.connectNode(gain);
     gain.connectNode(context.destination!);
-    oscillator.start(0);
-    oscillator.stop((context.currentTime ?? 0) + tone.duration + 0.03);
+    js_util.callMethod<void>(oscillator, 'start', <Object?>[0]);
+    js_util.callMethod<void>(
+      oscillator,
+      'stop',
+      <Object?>[(context.currentTime ?? 0) + tone.duration + 0.03],
+    );
   }
 }
 
