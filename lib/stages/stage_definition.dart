@@ -1,7 +1,10 @@
 import '../gameplay/wave_definition.dart';
 
 abstract class StageDefinition {
+  String get id;
   String get name;
+  String get briefing;
+  int get stageNumber;
   double get worldWidth;
   double get worldHeight;
   double get waterlineY;

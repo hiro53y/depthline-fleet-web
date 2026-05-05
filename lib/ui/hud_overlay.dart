@@ -46,7 +46,19 @@ class HudOverlay extends StatelessWidget {
                 const SizedBox(width: 12),
                 _HudChip(label: 'LIVES', value: state.lives.toString()),
                 const SizedBox(width: 12),
-                _HudChip(label: 'WAVE', value: '${state.currentWave}/${state.totalWaves}'),
+                _HudChip(
+                  label: state.totalWaves == 0 ? 'LEVEL' : 'WAVE',
+                  value: state.totalWaves == 0
+                      ? state.currentWave.toString()
+                      : '${state.currentWave}/${state.totalWaves}',
+                ),
+                const SizedBox(width: 12),
+                _HudChip(
+                  label: 'POWER',
+                  value: state.powerupLabel == 'NONE'
+                      ? '-'
+                      : '${state.powerupLabel} ${state.powerupSecondsRemaining.toStringAsFixed(1)}',
+                ),
               ],
             );
           },

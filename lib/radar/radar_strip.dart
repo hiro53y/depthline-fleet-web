@@ -108,20 +108,33 @@ class _RadarPainter extends CustomPainter {
         worldY: contact.worldY,
       );
       final Paint paint = Paint()
-        ..color = contact.type == RadarContactType.submarine
-            ? const Color(0xFFFFC36B)
-            : const Color(0xFF9DE9FF);
+        ..color = switch (contact.type) {
+          RadarContactType.submarine => const Color(0xFFFFC36B),
+          RadarContactType.depthCharge => const Color(0xFF9DE9FF),
+          RadarContactType.powerup => const Color(0xFFA5F28C),
+        };
 
-      if (contact.type == RadarContactType.submarine) {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromCenter(center: point, width: 16, height: 8),
-            const Radius.circular(4),
-          ),
-          paint,
-        );
-      } else {
-        canvas.drawCircle(point, 5, paint);
+      switch (contact.type) {
+        case RadarContactType.submarine:
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromCenter(center: point, width: 16, height: 8),
+              const Radius.circular(4),
+            ),
+            paint,
+          );
+          break;
+        case RadarContactType.depthCharge:
+          canvas.drawCircle(point, 5, paint);
+          break;
+        case RadarContactType.powerup:
+          canvas.drawCircle(point, 6, paint);
+          canvas.drawCircle(
+            point,
+            2.5,
+            Paint()..color = const Color(0xFF071018),
+          );
+          break;
       }
     }
 

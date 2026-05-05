@@ -11,6 +11,8 @@ class GameSessionState {
     required this.currentWave,
     required this.totalWaves,
     required this.status,
+    required this.powerupLabel,
+    required this.powerupSecondsRemaining,
   });
 
   factory GameSessionState.initial({required int totalWaves, required int lives}) {
@@ -20,6 +22,8 @@ class GameSessionState {
       currentWave: 1,
       totalWaves: totalWaves,
       status: GameStatus.playing,
+      powerupLabel: 'NONE',
+      powerupSecondsRemaining: 0,
     );
   }
 
@@ -28,6 +32,8 @@ class GameSessionState {
   final int currentWave;
   final int totalWaves;
   final GameStatus status;
+  final String powerupLabel;
+  final double powerupSecondsRemaining;
 
   bool get isPlaying => status == GameStatus.playing;
 
@@ -37,6 +43,8 @@ class GameSessionState {
     int? currentWave,
     int? totalWaves,
     GameStatus? status,
+    String? powerupLabel,
+    double? powerupSecondsRemaining,
   }) {
     return GameSessionState(
       score: score ?? this.score,
@@ -44,6 +52,8 @@ class GameSessionState {
       currentWave: currentWave ?? this.currentWave,
       totalWaves: totalWaves ?? this.totalWaves,
       status: status ?? this.status,
+      powerupLabel: powerupLabel ?? this.powerupLabel,
+      powerupSecondsRemaining: powerupSecondsRemaining ?? this.powerupSecondsRemaining,
     );
   }
 
@@ -57,9 +67,19 @@ class GameSessionState {
         other.lives == lives &&
         other.currentWave == currentWave &&
         other.totalWaves == totalWaves &&
-        other.status == status;
+        other.status == status &&
+        other.powerupLabel == powerupLabel &&
+        other.powerupSecondsRemaining == powerupSecondsRemaining;
   }
 
   @override
-  int get hashCode => Object.hash(score, lives, currentWave, totalWaves, status);
+  int get hashCode => Object.hash(
+        score,
+        lives,
+        currentWave,
+        totalWaves,
+        status,
+        powerupLabel,
+        powerupSecondsRemaining,
+      );
 }

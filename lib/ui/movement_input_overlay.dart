@@ -5,10 +5,12 @@ import '../config/game_constants.dart';
 class MovementInputOverlay extends StatelessWidget {
   const MovementInputOverlay({
     required this.onDirectionChanged,
+    required this.showTouchZones,
     super.key,
   });
 
   final ValueChanged<double> onDirectionChanged;
+  final bool showTouchZones;
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +31,14 @@ class MovementInputOverlay extends StatelessWidget {
             ],
           ),
         ),
-        child: Row(
-          children: const <Widget>[
-            Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_left)),
-            Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_right)),
-          ],
-        ),
+        child: showTouchZones
+            ? Row(
+                children: const <Widget>[
+                  Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_left)),
+                  Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_right)),
+                ],
+              )
+            : const SizedBox.expand(),
       ),
     );
   }

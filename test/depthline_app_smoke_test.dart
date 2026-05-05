@@ -1,5 +1,6 @@
 import 'package:depthline_fleet/gameplay/depthline_game.dart';
 import 'package:depthline_fleet/gameplay/weapon_side.dart';
+import 'package:depthline_fleet/persistence/game_settings.dart';
 import 'package:depthline_fleet/radar/radar_contact.dart';
 import 'package:depthline_fleet/stages/sea_stage_definition.dart';
 import 'package:depthline_fleet/ui/depthline_app.dart';
@@ -11,6 +12,13 @@ void main() {
   testWidgets('Depthline app renders game screen and controls', (WidgetTester tester) async {
     await tester.pumpWidget(const DepthlineFleetApp());
     await tester.pump();
+    await tester.pump();
+
+    expect(find.text('DEPTHLINE FLEET'), findsOneWidget);
+    expect(find.text('出撃'), findsOneWidget);
+
+    await tester.tap(find.text('出撃'));
+    await tester.pump();
 
     expect(find.byType(DepthlineGameScreen), findsOneWidget);
     expect(find.byType(GameWidget<DepthlineGame>), findsOneWidget);
@@ -21,7 +29,10 @@ void main() {
   });
 
   test('DepthlineGame can be created and publish depth charge radar contact', () {
-    final DepthlineGame game = DepthlineGame(stageDefinition: const SeaStageDefinition());
+    final DepthlineGame game = DepthlineGame(
+      stageDefinition: const SeaStageDefinition(),
+      settings: const GameSettings(soundEnabled: false),
+    );
 
     game.tryDropDepthCharge(WeaponSide.left);
     game.update(0.016);

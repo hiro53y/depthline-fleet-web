@@ -11,3 +11,7 @@ android/.gradle/
 android/local.properties
 *.iml
 .idea/
+
+# Stray local repos created during earlier publish attempts. Do not upload them.
+/depthline_fleet_web/
+/depthline-fleet-web/

@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 
 import '../config/game_constants.dart';
 import '../gameplay/depthline_game.dart';
+import '../gameplay/game_mode.dart';
+import '../gameplay/game_session_state.dart';
 import '../gameplay/retry_controller.dart';
 import '../gameplay/weapon_side.dart';
+import '../persistence/game_settings.dart';
 import '../radar/radar_strip.dart';
-import '../stages/sea_stage_definition.dart';
+import '../stages/stage_definition.dart';
 import 'control_overlay.dart';
 import 'hud_overlay.dart';
 import 'movement_input_overlay.dart';
@@ -15,7 +18,20 @@ import 'session_overlay.dart';
 import 'web_rotate_banner.dart';
 
 class DepthlineGameScreen extends StatefulWidget {
-  const DepthlineGameScreen({super.key});
+  const DepthlineGameScreen({
+    required this.stageDefinition,
+    required this.gameMode,
+    required this.settings,
+    this.onSessionFinished,
+    this.onExitToTitle,
+    super.key,
+  });
+
+  final StageDefinition stageDefinition;
+  final GameMode gameMode;
+  final GameSettings settings;
+  final void Function(GameSessionState state, StageDefinition stage)? onSessionFinished;
+  final VoidCallback? onExitToTitle;
 
   @override
   State<DepthlineGameScreen> createState() => _DepthlineGameScreenState();
@@ -25,6 +41,7 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
   late DepthlineGame _game;
   late RetryController _retryController;
   bool _hasActiveGame = false;
+  GameStatus? _reportedTerminalStatus;
 
   @override
   void initState() {
@@ -34,7 +51,17 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
 
   void _createSession() {
     final DepthlineGame? previousGame = _hasActiveGame ? _game : null;
-    _game = DepthlineGame(stageDefinition: const SeaStageDefinition());
+    if (previousGame != null) {
+      previousGame.sessionNotifier.removeListener(_handleSessionChanged);
+    }
+    _game = DepthlineGame(
+      stageDefinition: widget.stageDefinition,
+      gameMode: widget.gameMode,
+      settings: widget.settings,
+    );
+    _game.startMusic();
+    _game.sessionNotifier.addListener(_handleSessionChanged);
+    _reportedTerminalStatus = null;
     _hasActiveGame = true;
     if (previousGame != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,9 +75,19 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
     );
   }
 
+  void _handleSessionChanged() {
+    final GameSessionState state = _game.sessionNotifier.value;
+    if (state.isPlaying || _reportedTerminalStatus == state.status) {
+      return;
+    }
+    _reportedTerminalStatus = state.status;
+    widget.onSessionFinished?.call(state, widget.stageDefinition);
+  }
+
   @override
   void dispose() {
     if (_hasActiveGame) {
+      _game.sessionNotifier.removeListener(_handleSessionChanged);
       _game.disposeState();
     }
     super.dispose();
@@ -104,6 +141,7 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
                             right: 0,
                             bottom: GameConstants.radarHeight + GameConstants.controlHeight,
                             child: MovementInputOverlay(
+                              showTouchZones: widget.settings.showTouchZones,
                               onDirectionChanged: (double direction) {
                                 if (direction == 0) {
                                   _game.stopMovement();
@@ -138,7 +176,9 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
                           Positioned.fill(
                             child: SessionOverlay(
                               sessionListenable: _game.sessionNotifier,
+                              gameMode: widget.gameMode,
                               onRetry: _retryController.retry,
+                              onExitToTitle: widget.onExitToTitle,
                             ),
                           ),
                         ],

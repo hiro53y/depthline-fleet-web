@@ -24,6 +24,11 @@ class GameConstants {
   static const double depthChargeSideCooldown = 0.35;
 
   static const int startingLives = 3;
+  static const int maxLives = 5;
   static const int scorePerSubmarine = 100;
   static const double playerInvulnerabilitySeconds = 1.0;
+
+  static const double powerupDropChance = 0.28;
+  static const double ambientPingInterval = 5.2;
+  static const double bubbleSpawnInterval = 0.06;
 }

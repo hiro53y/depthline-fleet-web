@@ -14,6 +14,7 @@ class DepthCharge {
   bool isRemoved = false;
 
   Offset get position => _position;
+  bool get isInWater => _inWater;
 
   Rect get bounds => Rect.fromCircle(center: _position, radius: _radius);
 
@@ -109,7 +110,5 @@ class DepthCharge {
 
     canvas.drawCircle(_position, _radius, bodyPaint);
     canvas.drawCircle(_position.translate(-3, -3), _radius * 0.45, highlightPaint);
-
-    // TODO: Add a subtle bubble trail in a later visuals pass.
   }
 }

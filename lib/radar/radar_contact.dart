@@ -1,6 +1,7 @@
 enum RadarContactType {
   submarine,
   depthCharge,
+  powerup,
 }
 
 class RadarContact {

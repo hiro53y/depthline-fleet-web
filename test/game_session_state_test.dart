@@ -10,6 +10,7 @@ void main() {
     expect(state.currentWave, 1);
     expect(state.totalWaves, 3);
     expect(state.status, GameStatus.playing);
+    expect(state.powerupLabel, 'NONE');
   });
 
   test('copyWith updates only specified fields', () {
@@ -19,6 +20,8 @@ void main() {
       currentWave: 2,
       totalWaves: 3,
       status: GameStatus.playing,
+      powerupLabel: 'NONE',
+      powerupSecondsRemaining: 0,
     );
 
     final GameSessionState updated = original.copyWith(

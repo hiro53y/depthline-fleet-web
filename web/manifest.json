@@ -3,7 +3,17 @@
   "short_name": "Depthline Fleet",
   "start_url": ".",
   "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "orientation": "landscape",
   "background_color": "#020b11",
   "theme_color": "#0c2430",
-  "description": "A maritime single-stage action game built with Flutter and Flame."
+  "description": "A maritime action game built with Flutter and Flame for mobile web.",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
