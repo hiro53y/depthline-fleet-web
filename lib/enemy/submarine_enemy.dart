@@ -54,25 +54,96 @@ class SubmarineEnemy {
   }
 
   void render(Canvas canvas) {
-    final Paint hullPaint = Paint()..color = const Color(0xFF6F7C8C);
-    final Paint cabinPaint = Paint()..color = const Color(0xFF9DA9B3);
+    final double direction = speedX >= 0 ? 1 : -1;
+    canvas.save();
+    canvas.translate(_position.dx, _position.dy);
+    canvas.scale(direction, 1);
+
+    final Paint shadowPaint = Paint()
+      ..color = const Color(0x55000000)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7);
+    canvas.drawOval(
+      Rect.fromCenter(center: const Offset(0, 12), width: _size.width * 0.92, height: 22),
+      shadowPaint,
+    );
 
     final Rect hullRect = Rect.fromCenter(
-      center: _position,
+      center: Offset.zero,
       width: _size.width,
       height: _size.height,
     );
+    final Paint hullPaint = Paint()
+      ..shader = Gradient.linear(
+        hullRect.topCenter,
+        hullRect.bottomCenter,
+        const <Color>[
+          Color(0xFF9EADBC),
+          Color(0xFF596C7F),
+          Color(0xFF263646),
+        ],
+      );
     canvas.drawRRect(
       RRect.fromRectAndRadius(hullRect, const Radius.circular(20)),
       hullPaint,
     );
+
+    final Paint bellyPaint = Paint()
+      ..color = const Color(0xFF1D2C3A)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 8;
+    canvas.drawArc(
+      Rect.fromCenter(center: const Offset(2, 4), width: _size.width - 8, height: _size.height - 8),
+      0,
+      3.14,
+      false,
+      bellyPaint,
+    );
+
+    final Paint cabinPaint = Paint()..color = const Color(0xFFB4C3CF);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-        Rect.fromCenter(center: _position.translate(12, -12), width: 30, height: 16),
+        Rect.fromCenter(center: const Offset(9, -17), width: 38, height: 18),
         const Radius.circular(6),
       ),
       cabinPaint,
     );
-    canvas.drawCircle(_position.translate(-48, 0), 7, cabinPaint);
+    canvas.drawRect(
+      Rect.fromCenter(center: const Offset(28, -26), width: 3, height: 15),
+      cabinPaint,
+    );
+
+    final Paint windowPaint = Paint()..color = const Color(0xFFFFC96B);
+    for (final double x in <double>[-42, -20, 2, 24, 46]) {
+      canvas.drawCircle(Offset(x, -1), 4.2, windowPaint);
+      canvas.drawCircle(Offset(x, -1), 7.2, Paint()..color = windowPaint.color.withOpacity(0.12));
+    }
+
+    final Paint finPaint = Paint()..color = const Color(0xFF425467);
+    canvas.drawPath(
+      Path()
+        ..moveTo(-58, -2)
+        ..lineTo(-80, -15)
+        ..lineTo(-74, -2)
+        ..lineTo(-80, 12)
+        ..close(),
+      finPaint,
+    );
+    canvas.drawPath(
+      Path()
+        ..moveTo(56, -8)
+        ..lineTo(72, -18)
+        ..lineTo(67, -5)
+        ..close(),
+      finPaint,
+    );
+    canvas.drawLine(
+      const Offset(-50, -13),
+      const Offset(50, -13),
+      Paint()
+        ..color = const Color(0x99D9EEF8)
+        ..strokeWidth = 1.4
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.restore();
   }
 }

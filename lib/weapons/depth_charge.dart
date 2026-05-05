@@ -105,10 +105,38 @@ class DepthCharge {
   }
 
   void render(Canvas canvas) {
-    final Paint bodyPaint = Paint()..color = const Color(0xFF202C33);
-    final Paint highlightPaint = Paint()..color = const Color(0xFF4F6974);
+    if (_inWater) {
+      final Paint bubblePaint = Paint()..color = const Color(0x88C9F8FF);
+      for (int i = 0; i < 4; i += 1) {
+        final double radius = 2.5 + i;
+        final double drift = ((i.isEven ? -1 : 1) * (9 + i * 2)).toDouble();
+        final double lift = (-18 - (i * 12)).toDouble();
+        canvas.drawCircle(_position.translate(drift, lift), radius, bubblePaint);
+      }
+    }
 
-    canvas.drawCircle(_position, _radius, bodyPaint);
-    canvas.drawCircle(_position.translate(-3, -3), _radius * 0.45, highlightPaint);
+    final Rect bodyRect = Rect.fromCenter(center: _position, width: _radius * 1.55, height: _radius * 2.25);
+    final Paint bodyPaint = Paint()
+      ..shader = Gradient.linear(
+        bodyRect.topLeft,
+        bodyRect.bottomRight,
+        const <Color>[Color(0xFF7C929D), Color(0xFF283943), Color(0xFF0F171C)],
+      );
+    final Paint highlightPaint = Paint()..color = const Color(0xFFB3CDD8);
+
+    canvas.save();
+    canvas.translate(_position.dx, _position.dy);
+    canvas.rotate(0.15);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(center: Offset.zero, width: _radius * 1.55, height: _radius * 2.25),
+        const Radius.circular(7),
+      ),
+      bodyPaint,
+    );
+    canvas.drawRect(Rect.fromCenter(center: const Offset(0, -10), width: 18, height: 3), highlightPaint);
+    canvas.drawRect(Rect.fromCenter(center: const Offset(0, 10), width: 18, height: 3), highlightPaint);
+    canvas.drawCircle(const Offset(-3, -2), 3.2, Paint()..color = highlightPaint.color.withOpacity(0.65));
+    canvas.restore();
   }
 }

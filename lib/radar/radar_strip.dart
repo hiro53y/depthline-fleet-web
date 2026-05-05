@@ -27,13 +27,14 @@ class RadarStrip extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: <Color>[
-            Color(0xFF08121A),
-            Color(0xFF0B1A25),
+            Color(0xFF050D12),
+            Color(0xFF0A1A22),
+            Color(0xFF061018),
           ],
         ),
         border: Border(
-          top: BorderSide(color: Color(0x553BB2D0), width: 1),
-          bottom: BorderSide(color: Color(0x443BB2D0), width: 1),
+          top: BorderSide(color: Color(0x7738D7FF), width: 1.5),
+          bottom: BorderSide(color: Color(0x5538D7FF), width: 1),
         ),
       ),
       child: ValueListenableBuilder<GameSessionState>(
@@ -71,12 +72,35 @@ class _RadarPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final Rect panel = Rect.fromLTWH(18, 9, size.width - 36, size.height - 18);
+    final Paint panelPaint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: const <Color>[
+          Color(0x331FD9FF),
+          Color(0x081FD9FF),
+          Color(0x2220F0B4),
+        ],
+      ).createShader(panel);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(panel, const Radius.circular(8)),
+      panelPaint,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(panel, const Radius.circular(8)),
+      Paint()
+        ..color = const Color(0x884EDFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+
     final Paint gridPaint = Paint()
-      ..color = const Color(0x55A9D4E0)
+      ..color = const Color(0x4468E7FF)
       ..strokeWidth = 1;
     final Paint baselinePaint = Paint()
-      ..color = const Color(0x777DE3F5)
-      ..strokeWidth = 1.25;
+      ..color = const Color(0xAA7DE3F5)
+      ..strokeWidth = 1.35;
 
     canvas.drawLine(
       Offset(12, size.height / 2),
@@ -102,6 +126,19 @@ class _RadarPainter extends CustomPainter {
         gridPaint,
       );
     }
+    for (int i = 1; i < 3; i += 1) {
+      final double y = 12 + ((size.height - 24) * (i / 3));
+      canvas.drawLine(Offset(20, y), Offset(size.width - 20, y), gridPaint);
+    }
+
+    final Paint sweepPaint = Paint()
+      ..shader = LinearGradient(
+        colors: const <Color>[Color(0x0033FFCC), Color(0x5533FFCC), Color(0x0033FFCC)],
+      ).createShader(Rect.fromLTWH(size.width * 0.40, 10, size.width * 0.22, size.height - 20));
+    canvas.drawRect(Rect.fromLTWH(size.width * 0.48, 10, size.width * 0.04, size.height - 20), sweepPaint);
+
+    _drawLabel(canvas, 'TACTICAL SONAR', Offset(30, 14), const Color(0x887DE3F5));
+    _drawLabel(canvas, 'RANGE ${contacts.length}', Offset(size.width - 116, 14), const Color(0x887DE3F5));
 
     for (final RadarContact contact in contacts) {
       final Offset point = mapper.project(
@@ -114,6 +151,7 @@ class _RadarPainter extends CustomPainter {
           RadarContactType.depthCharge => const Color(0xFF9DE9FF),
           RadarContactType.powerup => const Color(0xFFA5F28C),
         };
+      canvas.drawCircle(point, 10, Paint()..color = paint.color.withOpacity(0.12));
 
       switch (contact.type) {
         case RadarContactType.submarine:
@@ -127,6 +165,14 @@ class _RadarPainter extends CustomPainter {
           break;
         case RadarContactType.depthCharge:
           canvas.drawCircle(point, 5, paint);
+          canvas.drawCircle(
+            point,
+            8,
+            Paint()
+              ..color = paint.color.withOpacity(0.45)
+              ..style = PaintingStyle.stroke
+              ..strokeWidth = 1,
+          );
           break;
         case RadarContactType.powerup:
           canvas.drawCircle(point, 6, paint);
@@ -154,6 +200,22 @@ class _RadarPainter extends CustomPainter {
       )..layout();
       painter.paint(canvas, Offset(size.width - painter.width - 16, 8));
     }
+  }
+
+  void _drawLabel(Canvas canvas, String text, Offset offset, Color color) {
+    final TextPainter painter = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(
+          color: color,
+          fontSize: 9,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.4,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    painter.paint(canvas, offset);
   }
 
   @override
