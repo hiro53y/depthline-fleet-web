@@ -75,7 +75,7 @@ Base directory:
 
 ## Build スクリプトの内容
 `scripts/netlify_build.sh` は次を行います。
-- Flutter stable を取得
+- Flutter `3.41.9` を取得
 - `flutter pub get`
 - `flutter precache --web`
 - `flutter build web --release`

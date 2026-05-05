@@ -309,6 +309,7 @@ class DepthlineGame extends Game {
   }
 
   void _handleEscapedSubmarines() {
+    bool lifeLostThisPass = false;
     for (final SubmarineEnemy enemy in _submarines) {
       if (enemy.isRemoved) {
         continue;
@@ -317,7 +318,10 @@ class DepthlineGame extends Game {
       if (enemy.hasEscaped(_stageDefinition.worldWidth)) {
         enemy.isRemoved = true;
         _markEnemyResolved();
-        _loseLife();
+        if (!lifeLostThisPass) {
+          _loseLife();
+          lifeLostThisPass = true;
+        }
       }
     }
   }

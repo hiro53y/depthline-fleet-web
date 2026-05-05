@@ -34,13 +34,15 @@ class ScoreAttackController {
     required void Function(WaveDefinition wave) onSpawn,
   }) {
     final int activeCap = math.min(7, 2 + (_level ~/ 2));
-    if (activeEnemies >= activeCap || _spawnedAtLevel >= _enemyTarget) {
+    int activeCount = activeEnemies;
+    if (activeCount >= activeCap || _spawnedAtLevel >= _enemyTarget) {
       return;
     }
 
     _timeUntilNextSpawn -= dt;
-    while (_timeUntilNextSpawn <= 0 && activeEnemies + 1 <= activeCap) {
+    while (_timeUntilNextSpawn <= 0 && activeCount < activeCap) {
       onSpawn(_buildWaveDefinition());
+      activeCount += 1;
       _spawnedAtLevel += 1;
       _timeUntilNextSpawn += _nextInterval();
       break;

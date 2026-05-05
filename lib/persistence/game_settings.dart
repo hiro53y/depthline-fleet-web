@@ -9,11 +9,11 @@ class GameSettings {
 
   factory GameSettings.fromJson(Map<String, Object?> json) {
     return GameSettings(
-      soundEnabled: json['soundEnabled'] as bool? ?? true,
-      musicEnabled: json['musicEnabled'] as bool? ?? true,
-      ambientEnabled: json['ambientEnabled'] as bool? ?? true,
-      effectsEnabled: json['effectsEnabled'] as bool? ?? true,
-      showTouchZones: json['showTouchZones'] as bool? ?? true,
+      soundEnabled: _readBool(json['soundEnabled']),
+      musicEnabled: _readBool(json['musicEnabled']),
+      ambientEnabled: _readBool(json['ambientEnabled']),
+      effectsEnabled: _readBool(json['effectsEnabled']),
+      showTouchZones: _readBool(json['showTouchZones']),
     );
   }
 
@@ -22,6 +22,22 @@ class GameSettings {
   final bool ambientEnabled;
   final bool effectsEnabled;
   final bool showTouchZones;
+
+  static bool _readBool(Object? value) {
+    if (value is bool) {
+      return value;
+    }
+    if (value is String) {
+      final String normalized = value.toLowerCase();
+      if (normalized == 'true') {
+        return true;
+      }
+      if (normalized == 'false') {
+        return false;
+      }
+    }
+    return true;
+  }
 
   Map<String, Object?> toJson() {
     return <String, Object?>{

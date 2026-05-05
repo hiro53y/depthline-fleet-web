@@ -10,8 +10,8 @@ class GameSaveData {
   factory GameSaveData.fromJson(Map<String, Object?> json) {
     final Object? rawCleared = json['clearedStageIds'];
     return GameSaveData(
-      highScore: json['highScore'] as int? ?? 0,
-      scoreAttackHighScore: json['scoreAttackHighScore'] as int? ?? 0,
+      highScore: _readInt(json['highScore']),
+      scoreAttackHighScore: _readInt(json['scoreAttackHighScore']),
       clearedStageIds: rawCleared is List<Object?>
           ? rawCleared.whereType<String>().toList(growable: false)
           : const <String>[],
@@ -21,6 +21,19 @@ class GameSaveData {
   final int highScore;
   final int scoreAttackHighScore;
   final List<String> clearedStageIds;
+
+  static int _readInt(Object? value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    if (value is String) {
+      return int.tryParse(value) ?? 0;
+    }
+    return 0;
+  }
 
   bool isStageUnlocked(String stageId) {
     if (stageId == StageCatalog.firstStage().id) {

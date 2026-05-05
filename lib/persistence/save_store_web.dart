@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:html' as html;
+
+import 'package:web/web.dart' as web;
 
 import 'persisted_state.dart';
 import 'save_store.dart';
@@ -11,20 +12,29 @@ class WebSaveStore implements SaveStore {
 
   @override
   Future<PersistedState> load() async {
-    final String? raw = html.window.localStorage[_key];
-    if (raw == null || raw.isEmpty) {
+    try {
+      final String? raw = web.window.localStorage.getItem(_key);
+      if (raw == null || raw.isEmpty) {
+        return const PersistedState();
+      }
+
+      final Object? decoded = jsonDecode(raw);
+      if (decoded is Map) {
+        return PersistedState.fromJson(Map<String, Object?>.from(decoded));
+      }
+      return const PersistedState();
+    } catch (_) {
+      // Corrupt or old localStorage data must not block startup.
       return const PersistedState();
     }
-
-    final Object? decoded = jsonDecode(raw);
-    if (decoded is Map) {
-      return PersistedState.fromJson(Map<String, Object?>.from(decoded));
-    }
-    return const PersistedState();
   }
 
   @override
   Future<void> save(PersistedState state) async {
-    html.window.localStorage[_key] = jsonEncode(state.toJson());
+    try {
+      web.window.localStorage.setItem(_key, jsonEncode(state.toJson()));
+    } catch (_) {
+      // Storage can be unavailable in private mode or restricted browsers.
+    }
   }
 }

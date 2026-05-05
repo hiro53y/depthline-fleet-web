@@ -49,29 +49,33 @@ class WebAudioBackend implements AudioBackend {
     _musicTimer = Timer.periodic(
       Duration(milliseconds: pattern.stepMillis),
       (_) {
-        final html.AudioContext activeContext = _context ??= html.AudioContext();
-        final double frequency = pattern.notes[_musicStep % pattern.notes.length];
-        _playTone(
-          activeContext,
-          _Tone(
-            frequency: frequency,
-            duration: pattern.noteDuration,
-            gain: pattern.gain,
-            type: pattern.type,
-          ),
-        );
-        if (_musicStep % 4 == 0) {
+        try {
+          final html.AudioContext activeContext = _context ??= html.AudioContext();
+          final double frequency = pattern.notes[_musicStep % pattern.notes.length];
           _playTone(
             activeContext,
             _Tone(
-              frequency: pattern.bassFrequency,
-              duration: pattern.noteDuration * 1.8,
-              gain: pattern.gain * 0.55,
-              type: 'sine',
+              frequency: frequency,
+              duration: pattern.noteDuration,
+              gain: pattern.gain,
+              type: pattern.type,
             ),
           );
+          if (_musicStep % 4 == 0) {
+            _playTone(
+              activeContext,
+              _Tone(
+                frequency: pattern.bassFrequency,
+                duration: pattern.noteDuration * 1.8,
+                gain: pattern.gain * 0.55,
+                type: 'sine',
+              ),
+            );
+          }
+          _musicStep += 1;
+        } catch (_) {
+          // Browser audio can be interrupted by tab throttling or policy changes.
         }
-        _musicStep += 1;
       },
     );
   }
@@ -85,26 +89,28 @@ class WebAudioBackend implements AudioBackend {
   }
 
   void _playTone(html.AudioContext context, _Tone tone) {
-    final html.OscillatorNode oscillator = context.createOscillator();
-    final html.GainNode gain = context.createGain();
+    try {
+      final html.OscillatorNode oscillator = context.createOscillator();
+      final html.GainNode gain = context.createGain();
+      final double now = context.currentTime ?? 0;
 
-    oscillator.type = tone.type;
-    oscillator.frequency?.setValueAtTime(tone.frequency, context.currentTime ?? 0);
-    gain.gain?.setValueAtTime(0.0001, context.currentTime ?? 0);
-    gain.gain?.exponentialRampToValueAtTime(tone.gain, (context.currentTime ?? 0) + 0.02);
-    gain.gain?.exponentialRampToValueAtTime(
-      0.0001,
-      (context.currentTime ?? 0) + tone.duration,
-    );
+      oscillator.type = tone.type;
+      oscillator.frequency?.setValueAtTime(tone.frequency, now);
+      gain.gain?.setValueAtTime(0.0001, now);
+      gain.gain?.exponentialRampToValueAtTime(tone.gain, now + 0.02);
+      gain.gain?.exponentialRampToValueAtTime(0.0001, now + tone.duration);
 
-    oscillator.connectNode(gain);
-    gain.connectNode(context.destination!);
-    js_util.callMethod<void>(oscillator, 'start', <Object?>[0]);
-    js_util.callMethod<void>(
-      oscillator,
-      'stop',
-      <Object?>[(context.currentTime ?? 0) + tone.duration + 0.03],
-    );
+      oscillator.connectNode(gain);
+      gain.connectNode(context.destination!);
+      js_util.callMethod<void>(oscillator, 'start', const <Object?>[0]);
+      js_util.callMethod<void>(
+        oscillator,
+        'stop',
+        <Object?>[now + tone.duration + 0.03],
+      );
+    } catch (_) {
+      // Sound is optional and must never break gameplay.
+    }
   }
 }
 
