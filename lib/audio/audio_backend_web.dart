@@ -92,7 +92,7 @@ class WebAudioBackend implements AudioBackend {
     try {
       final html.OscillatorNode oscillator = context.createOscillator();
       final html.GainNode gain = context.createGain();
-      final double now = context.currentTime ?? 0;
+      final double now = (context.currentTime ?? 0).toDouble();
 
       oscillator.type = tone.type;
       oscillator.frequency?.setValueAtTime(tone.frequency, now);
