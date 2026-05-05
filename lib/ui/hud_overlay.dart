@@ -24,6 +24,7 @@ class HudOverlay extends StatelessWidget {
       ),
       child: Stack(
         children: <Widget>[
+          // Background gradient
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
@@ -39,6 +40,7 @@ class HudOverlay extends StatelessWidget {
               ),
             ),
           ),
+          // Left colour bar
           Positioned(
             left: 0,
             top: 0,
@@ -54,12 +56,14 @@ class HudOverlay extends StatelessWidget {
               ),
             ),
           ),
+          // Top divider line
           Positioned(
             left: 20,
             right: 20,
             top: 10,
             child: Container(height: 1, color: const Color(0x44BFF7FF)),
           ),
+          // HUD content
           Padding(
             padding: const EdgeInsets.fromLTRB(22, 9, 22, 9),
             child: ValueListenableBuilder<GameSessionState>(
@@ -75,11 +79,8 @@ class HudOverlay extends StatelessWidget {
                       accent: const Color(0xFFFFC86D),
                     ),
                     const SizedBox(width: 12),
-                    _HudChip(
-                      label: 'LIVES',
-                      value: state.lives.toString(),
-                      accent: const Color(0xFF77FFB7),
-                    ),
+                    // LIVES – custom ship-icon badge instead of plain number
+                    _LivesBadge(lives: state.lives),
                     const SizedBox(width: 12),
                     _HudChip(
                       label: state.totalWaves == 0 ? 'LEVEL' : 'WAVE',
@@ -107,9 +108,12 @@ class HudOverlay extends StatelessWidget {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Stage badge (left side)
+// ---------------------------------------------------------------------------
+
 class _StageBadge extends StatelessWidget {
   const _StageBadge({required this.stageName});
-
   final String stageName;
 
   @override
@@ -163,6 +167,10 @@ class _StageBadge extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Generic HUD chip (SCORE / WAVE / POWER)
+// ---------------------------------------------------------------------------
 
 class _HudChip extends StatelessWidget {
   const _HudChip({
@@ -238,4 +246,137 @@ class _HudChip extends StatelessWidget {
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// Lives badge – shows small warship silhouettes instead of a plain number.
+// ---------------------------------------------------------------------------
+
+class _LivesBadge extends StatelessWidget {
+  const _LivesBadge({required this.lives});
+  final int lives;
+
+  static const Color _accent = Color(0xFF77FFB7);
+  static const Color _dim = Color(0xFF1E3A30);
+  static const int _maxLives = 5;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: <Color>[Color(0x66112B3B), Color(0x9910212E)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _accent.withOpacity(0.58)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: _accent.withOpacity(0.13),
+            blurRadius: 14,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: Row(
+        children: <Widget>[
+          // Accent bar
+          Container(
+            width: 5,
+            height: 32,
+            decoration: BoxDecoration(
+              color: _accent,
+              borderRadius: BorderRadius.circular(4),
+              boxShadow: <BoxShadow>[
+                BoxShadow(color: _accent.withOpacity(0.55), blurRadius: 8),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Text(
+                'LIVES',
+                style: TextStyle(
+                  color: Color(0xFF9AD3E3),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.7,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Row(
+                children: List<Widget>.generate(_maxLives, (int i) {
+                  final bool active = i < lives;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: CustomPaint(
+                      size: const Size(16, 12),
+                      painter: _ShipIconPainter(active: active),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Miniature warship silhouette used in the lives badge.
+// ---------------------------------------------------------------------------
+
+class _ShipIconPainter extends CustomPainter {
+  const _ShipIconPainter({required this.active});
+  final bool active;
+
+  @override
+  void paint(Canvas canvas, Size sz) {
+    final Color c =
+        active ? const Color(0xFF77FFB7) : const Color(0xFF254030);
+
+    // Hull
+    canvas.drawPath(
+      Path()
+        ..moveTo(1, sz.height * 0.62)
+        ..lineTo(sz.width - 1, sz.height * 0.62)
+        ..lineTo(sz.width, sz.height)
+        ..lineTo(0, sz.height)
+        ..close(),
+      Paint()..color = c,
+    );
+
+    // Superstructure block
+    canvas.drawRect(
+      Rect.fromLTWH(
+          sz.width * 0.28, sz.height * 0.28, sz.width * 0.38, sz.height * 0.35),
+      Paint()..color = c,
+    );
+
+    // Mast
+    canvas.drawRect(
+      Rect.fromLTWH(sz.width * 0.44, 0, 1.5, sz.height * 0.32),
+      Paint()..color = c,
+    );
+
+    // Glow ring when active
+    if (active) {
+      canvas.drawRect(
+        Rect.fromLTWH(sz.width * 0.28, sz.height * 0.28, sz.width * 0.38, sz.height * 0.35),
+        Paint()
+          ..color = const Color(0xFF77FFB7).withOpacity(0.20)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ShipIconPainter old) => old.active != active;
 }
