@@ -6,12 +6,14 @@ import '../gameplay/game_session_state.dart';
 class ControlOverlay extends StatelessWidget {
   const ControlOverlay({
     required this.sessionListenable,
+    required this.onMoveDirectionChanged,
     required this.onDropLeft,
     required this.onDropRight,
     super.key,
   });
 
   final ValueListenable<GameSessionState> sessionListenable;
+  final ValueChanged<double> onMoveDirectionChanged;
   final VoidCallback onDropLeft;
   final VoidCallback onDropRight;
 
@@ -31,26 +33,70 @@ class ControlOverlay extends StatelessWidget {
             border: Border(top: BorderSide(color: Color(0x6638D7FF), width: 1.5)),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 10),
+            padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
             child: Row(
               children: <Widget>[
                 Expanded(
-                  child: _DropButton(
-                    title: '左投下',
-                    subtitle: 'PORT DEPTH CHARGE',
-                    alignment: Alignment.centerLeft,
-                    enabled: enabled,
-                    onPressed: onDropLeft,
+                  flex: 5,
+                  child: _ControlGroup(
+                    label: '操艦',
+                    subtitle: 'LEFT HAND',
+                    accent: const Color(0xFF66E8FF),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: _MoveButton(
+                            title: '←',
+                            subtitle: '左移動',
+                            direction: -1,
+                            enabled: enabled,
+                            onDirectionChanged: onMoveDirectionChanged,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _MoveButton(
+                            title: '→',
+                            subtitle: '右移動',
+                            direction: 1,
+                            enabled: enabled,
+                            onDirectionChanged: onMoveDirectionChanged,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 18),
                 Expanded(
-                  child: _DropButton(
-                    title: '右投下',
-                    subtitle: 'STARBOARD DEPTH CHARGE',
-                    alignment: Alignment.centerRight,
-                    enabled: enabled,
-                    onPressed: onDropRight,
+                  flex: 7,
+                  child: _ControlGroup(
+                    label: '爆雷投下',
+                    subtitle: 'RIGHT HAND',
+                    accent: const Color(0xFFFFC86D),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: _DropButton(
+                            title: '左投下',
+                            subtitle: 'LEFT RACK',
+                            alignment: Alignment.centerLeft,
+                            enabled: enabled,
+                            onPressed: onDropLeft,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _DropButton(
+                            title: '右投下',
+                            subtitle: 'RIGHT RACK',
+                            alignment: Alignment.centerRight,
+                            enabled: enabled,
+                            onPressed: onDropRight,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -62,10 +108,73 @@ class ControlOverlay extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// _DropButton – StatefulWidget with press-scale and glow animation.
-// Action fires on TapDown for immediate game response.
-// ---------------------------------------------------------------------------
+class _ControlGroup extends StatelessWidget {
+  const _ControlGroup({
+    required this.label,
+    required this.subtitle,
+    required this.accent,
+    required this.child,
+  });
+
+  final String label;
+  final String subtitle;
+  final Color accent;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            children: <Widget>[
+              Text(
+                label,
+                style: TextStyle(
+                  color: accent.withOpacity(0.95),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: <Color>[
+                        accent.withOpacity(0.65),
+                        accent.withOpacity(0.03),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Color(0xFF7DB8C7),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 6),
+        Expanded(child: child),
+      ],
+    );
+  }
+}
+
+// Stateful buttons use press-scale and glow animation.
+// Drop actions fire on TapDown for immediate game response.
 
 class _DropButton extends StatefulWidget {
   const _DropButton({
@@ -234,6 +343,158 @@ class _DropButtonState extends State<_DropButton>
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _MoveButton extends StatefulWidget {
+  const _MoveButton({
+    required this.title,
+    required this.subtitle,
+    required this.direction,
+    required this.enabled,
+    required this.onDirectionChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final double direction;
+  final bool enabled;
+  final ValueChanged<double> onDirectionChanged;
+
+  @override
+  State<_MoveButton> createState() => _MoveButtonState();
+}
+
+class _MoveButtonState extends State<_MoveButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 70),
+    reverseDuration: const Duration(milliseconds: 180),
+  );
+
+  late final Animation<double> _scale = Tween<double>(begin: 1.0, end: 0.91).animate(
+    CurvedAnimation(parent: _ctrl, curve: Curves.easeIn, reverseCurve: Curves.easeOut),
+  );
+
+  late final Animation<double> _glowFraction = Tween<double>(begin: 0.0, end: 1.0).animate(
+    CurvedAnimation(parent: _ctrl, curve: Curves.easeIn),
+  );
+
+  @override
+  void didUpdateWidget(covariant _MoveButton oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.enabled && !widget.enabled) {
+      widget.onDirectionChanged(0);
+      _ctrl.reverse();
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  void _start(TapDownDetails _) {
+    if (!widget.enabled) return;
+    _ctrl.forward();
+    widget.onDirectionChanged(widget.direction);
+  }
+
+  void _stop() {
+    if (widget.enabled) {
+      widget.onDirectionChanged(0);
+    }
+    _ctrl.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const Color accent = Color(0xFF66E8FF);
+
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (BuildContext context, _) {
+        final double glow = _glowFraction.value;
+
+        return Transform.scale(
+          scale: _scale.value,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: _start,
+            onTapUp: (_) => _stop(),
+            onTapCancel: _stop,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: widget.enabled
+                      ? <Color>[
+                          Color.lerp(const Color(0xFF153D52),
+                              accent.withOpacity(0.42), glow * 0.55)!,
+                          const Color(0xFF082737),
+                        ]
+                      : const <Color>[Color(0xFF25323A), Color(0xFF11181D)],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: widget.enabled
+                      ? accent.withOpacity(0.72 + glow * 0.24)
+                      : const Color(0xFF35464E),
+                  width: 1.0 + glow * 0.8,
+                ),
+                boxShadow: <BoxShadow>[
+                  if (widget.enabled)
+                    BoxShadow(
+                      color: accent.withOpacity(0.16 + glow * 0.34),
+                      blurRadius: 16 + glow * 20,
+                      offset: const Offset(0, 6),
+                    ),
+                ],
+              ),
+              child: Stack(
+                fit: StackFit.expand,
+                children: <Widget>[
+                  Align(
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Text(
+                          widget.title,
+                          style: TextStyle(
+                            color: widget.enabled
+                                ? Color.lerp(Colors.white, accent, glow * 0.55)
+                                : const Color(0xFF9AA5AA),
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          widget.subtitle,
+                          style: TextStyle(
+                            color: widget.enabled
+                                ? const Color(0xFFBDEEFF)
+                                : const Color(0xFF6F7D84),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

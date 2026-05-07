@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../config/game_constants.dart';
-
 class MovementInputOverlay extends StatelessWidget {
   const MovementInputOverlay({
-    required this.onDirectionChanged,
     required this.showTouchZones,
     super.key,
   });
 
-  final ValueChanged<double> onDirectionChanged;
   final bool showTouchZones;
 
   @override
   Widget build(BuildContext context) {
-    return Listener(
-      behavior: HitTestBehavior.opaque,
-      onPointerDown: (PointerDownEvent event) => _handlePointer(event.localPosition.dx),
-      onPointerMove: (PointerMoveEvent event) => _handlePointer(event.localPosition.dx),
-      onPointerUp: (_) => onDirectionChanged(0),
-      onPointerCancel: (_) => onDirectionChanged(0),
+    return IgnorePointer(
       child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -32,19 +23,25 @@ class MovementInputOverlay extends StatelessWidget {
           ),
         ),
         child: showTouchZones
-            ? Row(
-                children: const <Widget>[
-                  Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_left, label: 'LEFT MANEUVER')),
-                  Expanded(child: _ZoneHint(icon: Icons.keyboard_double_arrow_right, label: 'RIGHT MANEUVER')),
+            ? const Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _ZoneHint(
+                      icon: Icons.gamepad_rounded,
+                      label: '左下の操艦ボタンで移動',
+                    ),
+                  ),
+                  Expanded(
+                    child: _ZoneHint(
+                      icon: Icons.keyboard_double_arrow_down,
+                      label: '右下の投下ボタンで爆雷',
+                    ),
+                  ),
                 ],
               )
             : const SizedBox.expand(),
       ),
     );
-  }
-
-  void _handlePointer(double localX) {
-    onDirectionChanged(localX < (GameConstants.logicalWidth / 2) ? -1 : 1);
   }
 }
 

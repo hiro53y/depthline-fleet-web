@@ -142,13 +142,6 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
                             bottom: GameConstants.radarHeight + GameConstants.controlHeight,
                             child: MovementInputOverlay(
                               showTouchZones: widget.settings.showTouchZones,
-                              onDirectionChanged: (double direction) {
-                                if (direction == 0) {
-                                  _game.stopMovement();
-                                  return;
-                                }
-                                _game.setMovementDirection(direction);
-                              },
                             ),
                           ),
                           Positioned(
@@ -169,6 +162,13 @@ class _DepthlineGameScreenState extends State<DepthlineGameScreen> {
                             height: GameConstants.controlHeight,
                             child: ControlOverlay(
                               sessionListenable: _game.sessionNotifier,
+                              onMoveDirectionChanged: (double direction) {
+                                if (direction == 0) {
+                                  _game.stopMovement();
+                                  return;
+                                }
+                                _game.setMovementDirection(direction);
+                              },
                               onDropLeft: () => _game.tryDropDepthCharge(WeaponSide.left),
                               onDropRight: () => _game.tryDropDepthCharge(WeaponSide.right),
                             ),

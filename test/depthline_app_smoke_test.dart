@@ -23,6 +23,8 @@ void main() {
     expect(find.byType(DepthlineGameScreen), findsOneWidget);
     expect(find.byType(GameWidget<DepthlineGame>), findsOneWidget);
     expect(find.text('Sea Stage 1'), findsOneWidget);
+    expect(find.text('左移動'), findsOneWidget);
+    expect(find.text('右移動'), findsOneWidget);
     expect(find.text('左投下'), findsOneWidget);
     expect(find.text('右投下'), findsOneWidget);
     expect(find.text('SCORE'), findsOneWidget);
