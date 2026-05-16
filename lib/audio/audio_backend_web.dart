@@ -282,11 +282,11 @@ class _MusicAsset {
       case GameMusicTrack.title:
         return const <String>['$_basePath/title.mp3'];
       case GameMusicTrack.stage1:
-        return const <String>['$_basePath/stage1.mp3', '$_basePath/campaign.mp3'];
+        return const <String>['$_basePath/campaign.mp3'];
       case GameMusicTrack.stage2:
-        return const <String>['$_basePath/stage2.mp3', '$_basePath/campaign.mp3'];
+        return const <String>['$_basePath/campaign.mp3'];
       case GameMusicTrack.stage3:
-        return const <String>['$_basePath/stage3.mp3', '$_basePath/campaign.mp3'];
+        return const <String>['$_basePath/campaign.mp3'];
       case GameMusicTrack.scoreAttack:
         return const <String>['$_basePath/score_attack.mp3'];
     }
