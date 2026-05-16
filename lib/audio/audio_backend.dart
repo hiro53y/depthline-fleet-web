@@ -10,6 +10,7 @@ enum GameAudioCue {
 }
 
 enum GameMusicTrack {
+  title,
   stage1,
   stage2,
   stage3,

@@ -59,7 +59,7 @@ class SettingsScreen extends StatelessWidget {
                     _SettingSwitch(
                       icon: Icons.music_note_rounded,
                       title: '音楽',
-                      subtitle: 'ステージごとの生成BGMを鳴らす',
+                      subtitle: 'MP3または生成BGMを鳴らす',
                       value: settings.musicEnabled,
                       onChanged: (bool value) {
                         onChanged(settings.copyWith(musicEnabled: value));

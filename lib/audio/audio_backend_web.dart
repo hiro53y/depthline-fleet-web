@@ -9,8 +9,10 @@ AudioBackend createAudioBackend() => WebAudioBackend();
 class WebAudioBackend implements AudioBackend {
   html.AudioContext? _context;
   Timer? _musicTimer;
+  Object? _musicElement;
   GameMusicTrack? _currentTrack;
   int _musicStep = 0;
+  int _musicToken = 0;
 
   @override
   Future<void> warmUp() async {
@@ -45,6 +47,13 @@ class WebAudioBackend implements AudioBackend {
     _currentTrack = track;
     _musicStep = 0;
 
+    if (_startExternalMusic(track)) {
+      return;
+    }
+    _startGeneratedMusic(track);
+  }
+
+  void _startGeneratedMusic(GameMusicTrack track) {
     final _MusicPattern pattern = _MusicPattern.forTrack(track);
     _musicTimer = Timer.periodic(
       Duration(milliseconds: pattern.stepMillis),
@@ -80,8 +89,89 @@ class WebAudioBackend implements AudioBackend {
     );
   }
 
+  bool _startExternalMusic(GameMusicTrack track) {
+    final List<String> candidates = _MusicAsset.forTrack(track);
+    if (candidates.isEmpty) {
+      return false;
+    }
+
+    _startExternalMusicCandidate(track, candidates, 0, ++_musicToken);
+    return true;
+  }
+
+  void _startExternalMusicCandidate(
+    GameMusicTrack track,
+    List<String> candidates,
+    int index,
+    int token,
+  ) {
+    if (token != _musicToken || _currentTrack != track) {
+      return;
+    }
+    if (index >= candidates.length) {
+      _startGeneratedMusic(track);
+      return;
+    }
+
+    try {
+      final Object audioConstructor = js_util.getProperty(js_util.globalThis, 'Audio');
+      final Object audio = js_util.callConstructor(
+        audioConstructor,
+        <Object?>[candidates[index]],
+      );
+      _musicElement = audio;
+      js_util.setProperty(audio, 'loop', true);
+      js_util.setProperty(audio, 'preload', 'auto');
+      js_util.setProperty(audio, 'volume', 0.62);
+      js_util.setProperty(
+        audio,
+        'onerror',
+        js_util.allowInterop(() {
+          if (token != _musicToken || _currentTrack != track) {
+            return;
+          }
+          _stopExternalMusic();
+          _startExternalMusicCandidate(track, candidates, index + 1, token);
+        }),
+      );
+
+      final Object? playResult = js_util.callMethod<Object?>(
+        audio,
+        'play',
+        const <Object?>[],
+      );
+      if (playResult != null && js_util.hasProperty(playResult, 'catch')) {
+        js_util.callMethod<Object?>(
+          playResult,
+          'catch',
+          <Object?>[js_util.allowInterop((_) {})],
+        );
+      }
+    } catch (_) {
+      _stopExternalMusic();
+      _startExternalMusicCandidate(track, candidates, index + 1, token);
+    }
+  }
+
+  void _stopExternalMusic() {
+    final Object? audio = _musicElement;
+    if (audio == null) {
+      return;
+    }
+    try {
+      js_util.callMethod<void>(audio, 'pause', const <Object?>[]);
+      js_util.setProperty(audio, 'currentTime', 0);
+      js_util.setProperty(audio, 'onerror', null);
+    } catch (_) {
+      // External music is optional.
+    }
+    _musicElement = null;
+  }
+
   @override
   void stopMusic() {
+    _musicToken += 1;
+    _stopExternalMusic();
     _musicTimer?.cancel();
     _musicTimer = null;
     _currentTrack = null;
@@ -126,6 +216,15 @@ class _MusicPattern {
 
   factory _MusicPattern.forTrack(GameMusicTrack track) {
     switch (track) {
+      case GameMusicTrack.title:
+        return const _MusicPattern(
+          notes: <double>[196, 247, 294, 247, 220, 262, 330, 262],
+          bassFrequency: 98,
+          stepMillis: 410,
+          noteDuration: 0.26,
+          gain: 0.016,
+          type: 'triangle',
+        );
       case GameMusicTrack.stage1:
         return const _MusicPattern(
           notes: <double>[220, 247, 294, 330, 294, 247, 196, 220],
@@ -171,6 +270,27 @@ class _MusicPattern {
   final double noteDuration;
   final double gain;
   final String type;
+}
+
+class _MusicAsset {
+  const _MusicAsset._();
+
+  static const String _basePath = 'assets/assets/audio/bgm';
+
+  static List<String> forTrack(GameMusicTrack track) {
+    switch (track) {
+      case GameMusicTrack.title:
+        return const <String>['$_basePath/title.mp3'];
+      case GameMusicTrack.stage1:
+        return const <String>['$_basePath/stage1.mp3', '$_basePath/campaign.mp3'];
+      case GameMusicTrack.stage2:
+        return const <String>['$_basePath/stage2.mp3', '$_basePath/campaign.mp3'];
+      case GameMusicTrack.stage3:
+        return const <String>['$_basePath/stage3.mp3', '$_basePath/campaign.mp3'];
+      case GameMusicTrack.scoreAttack:
+        return const <String>['$_basePath/score_attack.mp3'];
+    }
+  }
 }
 
 class _Tone {

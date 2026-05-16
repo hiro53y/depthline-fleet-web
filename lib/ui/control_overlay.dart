@@ -70,32 +70,38 @@ class ControlOverlay extends StatelessWidget {
                 const SizedBox(width: 18),
                 Expanded(
                   flex: 7,
-                  child: _ControlGroup(
-                    label: '爆雷投下',
-                    subtitle: 'RIGHT HAND',
-                    accent: const Color(0xFFFFC86D),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: _DropButton(
-                            title: '左投下',
-                            subtitle: 'LEFT RACK',
-                            alignment: Alignment.centerLeft,
-                            enabled: enabled,
-                            onPressed: onDropLeft,
-                          ),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 520),
+                      child: _ControlGroup(
+                        label: '爆雷投下',
+                        subtitle: 'RIGHT HAND',
+                        accent: const Color(0xFFFFC86D),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: _DropButton(
+                                title: '左投下',
+                                subtitle: 'LEFT RACK',
+                                alignment: Alignment.centerLeft,
+                                enabled: enabled,
+                                onPressed: onDropLeft,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: _DropButton(
+                                title: '右投下',
+                                subtitle: 'RIGHT RACK',
+                                alignment: Alignment.centerRight,
+                                enabled: enabled,
+                                onPressed: onDropRight,
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _DropButton(
-                            title: '右投下',
-                            subtitle: 'RIGHT RACK',
-                            alignment: Alignment.centerRight,
-                            enabled: enabled,
-                            onPressed: onDropRight,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

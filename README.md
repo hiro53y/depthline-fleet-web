@@ -14,7 +14,8 @@
 - スコアアタック専用ハイスコア保存
 - パワーアップ
 - 効果音
-- Stage 1 / Stage 2 / Stage 3 / Score Attack の4種類の生成BGM
+- タイトル / 3ステージ攻略 / スコアアタックのMP3 BGM差し替え
+- MP3未配置時の生成BGMフォールバック
 - 泡エフェクト
 - スマホのホーム画面追加向け manifest
 
@@ -33,6 +34,28 @@
 - `netlify.toml`
 
 Netlify 側は、このフォルダ単体で完結します。
+
+## BGM の差し替え
+MP3 はこのフォルダ内の `assets/audio/bgm/` に保存してください。
+このフォルダの外に音源を置く必要はありません。
+
+基本ファイル名:
+
+| 用途 | ファイル名 |
+|---|---|
+| タイトル画面 | `assets/audio/bgm/title.mp3` |
+| 3ステージ攻略 共通 | `assets/audio/bgm/campaign.mp3` |
+| スコアアタック | `assets/audio/bgm/score_attack.mp3` |
+
+ステージ別に曲を分けたい場合は、以下を置くと `campaign.mp3` より優先されます。
+
+| 用途 | ファイル名 |
+|---|---|
+| Stage 1 | `assets/audio/bgm/stage1.mp3` |
+| Stage 2 | `assets/audio/bgm/stage2.mp3` |
+| Stage 3 | `assets/audio/bgm/stage3.mp3` |
+
+該当MP3がない場合は、既存の生成BGMが再生されます。
 
 ## GitHub へアップロードする手順
 1. `depthline_fleet_web` フォルダを開く

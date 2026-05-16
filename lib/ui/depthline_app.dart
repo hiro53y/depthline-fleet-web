@@ -32,6 +32,7 @@ enum _AppScreen {
 
 class _DepthlineFleetAppState extends State<DepthlineFleetApp> {
   final SaveStore _saveStore = createPlatformSaveStore();
+  GameAudioController? _titleAudio;
 
   PersistedState _persistedState = const PersistedState();
   _AppScreen _screen = _AppScreen.title;
@@ -54,6 +55,7 @@ class _DepthlineFleetAppState extends State<DepthlineFleetApp> {
       _persistedState = loadedState;
       _loaded = true;
     });
+    _startTitleMusic();
   }
 
   Future<void> _save(PersistedState state) async {
@@ -67,18 +69,21 @@ class _DepthlineFleetAppState extends State<DepthlineFleetApp> {
     if (!_persistedState.saveData.isStageUnlocked(stageId)) {
       return;
     }
+    _startTitleMusic();
     setState(() {
       _selectedStageId = stageId;
     });
   }
 
   void _selectGameMode(GameMode mode) {
+    _startTitleMusic();
     setState(() {
       _selectedGameMode = mode;
     });
   }
 
   void _startGame() {
+    _stopTitleMusic();
     final GameAudioController audio = GameAudioController(
       settings: _persistedState.settings,
     );
@@ -90,6 +95,7 @@ class _DepthlineFleetAppState extends State<DepthlineFleetApp> {
   }
 
   void _openSettings() {
+    _stopTitleMusic();
     setState(() {
       _screen = _AppScreen.settings;
     });
@@ -99,10 +105,39 @@ class _DepthlineFleetAppState extends State<DepthlineFleetApp> {
     setState(() {
       _screen = _AppScreen.title;
     });
+    _startTitleMusic();
   }
 
   void _handleSettingsChanged(GameSettings settings) {
     unawaited(_save(_persistedState.copyWith(settings: settings)));
+    if (settings.musicEnabled) {
+      _startTitleMusic(settings: settings);
+    } else {
+      _stopTitleMusic();
+    }
+  }
+
+  void _startTitleMusic({GameSettings? settings}) {
+    final GameSettings activeSettings = settings ?? _persistedState.settings;
+    if (!activeSettings.musicEnabled || _screen != _AppScreen.title) {
+      return;
+    }
+    _titleAudio?.stopMusic();
+    final GameAudioController audio = GameAudioController(settings: activeSettings);
+    _titleAudio = audio;
+    unawaited(audio.warmUp());
+    audio.startMusic(GameMusicTrack.title);
+  }
+
+  void _stopTitleMusic() {
+    _titleAudio?.stopMusic();
+    _titleAudio = null;
+  }
+
+  @override
+  void dispose() {
+    _stopTitleMusic();
+    super.dispose();
   }
 
   void _handleSessionFinished(GameSessionState state, StageDefinition stage) {
