@@ -13,12 +13,6 @@ if (location.search.includes('rafshim=1')) {
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <App />
-    <div className="rotate-notice">
-      <div className="rotate-card">
-        <div className="rotate-title">スマホを縦にしてください</div>
-        <p>Depthline Fleet は縦画面で遊ぶゲームです。</p>
-      </div>
-    </div>
   </React.StrictMode>,
 );
 

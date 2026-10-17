@@ -222,12 +222,3 @@ button:disabled { cursor: default; }
 .toggle.on { background: var(--gold2); color: #1a0f02; font-weight: 800; }
 .danger .confirm { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #ffb2a9; flex-wrap: wrap; }
 .ver { text-align: right; font-size: 11px; color: var(--muted); margin: 8px 0 0; }
-
-/* スマホを横にした時 */
-.rotate-notice { display: none; }
-@media (orientation: landscape) and (max-height: 520px) {
-  .rotate-notice { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(2, 10, 18, 0.97); }
-  .rotate-card { text-align: center; padding: 20px; border-radius: 16px; border: 1px solid var(--line); background: var(--panel); }
-  .rotate-title { font-size: 19px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
-  .rotate-card p { margin: 0; font-size: 13px; color: var(--muted); }
-}

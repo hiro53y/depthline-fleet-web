@@ -5,7 +5,7 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "fullscreen", "minimal-ui"],
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#02101c",
   "theme_color": "#06243a",
   "description": "爆雷で深海の敵を沈める縦画面の海戦アクション",

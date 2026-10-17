@@ -29,7 +29,7 @@ npm run build
 - `src/game/`：純粋な TS（固定の刻み 1/60・seed 付き乱数）。表 `data.ts`、進行 `sim.ts`、無限と毎日 `modes.ts`、進みと改造 `progress.ts`、保存 `save.ts`（キー `depthline-fleet-v2:*`。Flutter 版の保存は読まない・消さない）。
 - `src/view/`：絵 `art.ts`、描画 `renderer.ts`、演出 `effects.ts`。
 - `src/ui/`：タイトル・海図・改造・戦闘。`src/audio/`：BGM（mp3）と効果音（WebAudio の合成音）。
-- `public/`：manifest（portrait）・アイコン・Service Worker（キャッシュ名 `depthline-fleet-v2`）・BGM。
+- `public/`：manifest（向きは固定しない）・アイコン・Service Worker（キャッシュ名 `depthline-fleet-v3`）・BGM。
 
 ## 公開
 GitHub `hiro53y/depthline-fleet-web` の main に push すると、Cloudflare Workers Builds が `bash scripts/netlify_build.sh`（中身は `npm ci && npm run build`）を実行し、`npx wrangler deploy` で `build/web` を配る（`wrangler.toml`）。ビルドスクリプトの名前は Cloudflare の設定に合わせて昔のまま。
