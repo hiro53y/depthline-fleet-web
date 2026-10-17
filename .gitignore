@@ -1,15 +1,9 @@
-# Flutter / Dart
-.dart_tool/
-.flutter-plugins
-.flutter-plugins-dependencies
-.packages
+node_modules/
 build/
-
-# Android / IDE
-android/.gradle/
-android/local.properties
-*.iml
-.idea/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+*.log
 
 # Stray local repos created during earlier publish attempts. Do not upload them.
 /depthline_fleet_web/

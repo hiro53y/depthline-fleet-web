@@ -1,112 +1,35 @@
-# Depthline Fleet Web Package
+# Depthline Fleet 2.0
 
-## 概要
-このフォルダは、そのまま GitHub リポジトリ化して Netlify に接続できる  
-`Depthline Fleet` の Web 公開パッケージです。
+縦画面の海戦アクション PWA です（公開先 https://depthline-fleet-web.seto0807.workers.dev/ ）。
+2.0 で Flutter＋Flame から TypeScript＋Canvas に作り直しました（読み込み約 80KB）。昔の海戦アクションに影響を受けていますが、固有名詞・画像・音は流用していません（絵はすべて Canvas で描画）。
 
-現在の内容:
-- タイトル画面
-- 設定画面
-- `3ステージ攻略` と `スコアアタック` の2モード
-- 3つの海域ステージ
-- ランダム無限スポーンのスコアアタック
-- ハイスコアとステージアンロック保存
-- スコアアタック専用ハイスコア保存
-- パワーアップ
-- 効果音
-- タイトル / 3ステージ攻略 / スコアアタックのMP3 BGM差し替え
-- MP3未配置時の生成BGMフォールバック
-- 泡エフェクト
-- スマホのホーム画面追加向け manifest
+## 遊び方
+- 海面の艦を左右に動かし、左右の舷側から爆雷を落として潜水艦を沈める。爆雷は空中→着水→ゆっくり沈む。点線が落ちる場所の目安。
+- 操作：下の ◀ ▶（長押しで移動）・左投下・右投下（長押しで連続）・特殊。海面より上をなぞっても移動、海の中に触れるとその側へ投下。PC は ← → / Z X / スペース。
+- 爆発は近くの爆雷・機雷を誘爆させて連鎖になる。連鎖で複数沈めると点が増える。深い敵ほど高得点。
+- 敵：小型潜水艇・潜水艦・深海潜水艦・機雷敷設艦・追尾潜水艦・魚雷艇・影の潜水艦。魚雷・追尾魚雷・機雷は爆発で消せる。
+- ボス5種（区画を壊していく。体力で形態が変わる）。
+- 強化（連射・大型爆雷・盾・修理・三連投下・金）と特殊兵装（投射爆雷・散布爆雷・誘導魚雷・ソナー爆発）。
+- 全30ステージ（大陸棚・船団航路・嵐の海・氷の海・深淵 × 6）。目標は撃沈・耐える・船団の護衛・ボス。星1〜3。
+- 改造（船体・機関・装填・投下数・炸薬・範囲・ソナー・特殊兵装）と艦3種（駆逐艦・コルベット・巡洋艦）。
+- 無限の海（波ごとに強くなる）と毎日の挑戦（日替わりの条件・初勝利で報酬）。難しさはふつう／艦長。
 
-重要:
-- **この `depthline_fleet_web` フォルダの中身を、GitHub リポジトリのルートとして使ってください。**
-- 親フォルダごとではなく、このフォルダの内容一式がリポジトリ直下にある状態が前提です。
-
-## このフォルダに含めたもの
-- Flutter Web 用アプリ本体
-- `lib/`
-- `web/`
-- `test/`
-- `pubspec.yaml`
-- `.nvmrc`
-- `scripts/netlify_build.sh`
-- `netlify.toml`
-
-Netlify 側は、このフォルダ単体で完結します。
-
-## BGM の差し替え
-MP3 はこのフォルダ内の `assets/audio/bgm/` に保存してください。
-このフォルダの外に音源を置く必要はありません。
-
-基本ファイル名:
-
-| 用途 | ファイル名 |
-|---|---|
-| タイトル画面 | `assets/audio/bgm/title.mp3` |
-| 3ステージ攻略 共通 | `assets/audio/bgm/campaign.mp3` |
-| スコアアタック | `assets/audio/bgm/score_attack.mp3` |
-
-該当MP3がない場合は、既存の生成BGMが再生されます。
-
-## GitHub へアップロードする手順
-1. `depthline_fleet_web` フォルダを開く
-2. その中身を GitHub リポジトリのルートに置く
-3. GitHub に push する
-
-ローカルで Git を使う場合:
-
-```powershell
-cd deliverables\depthline_fleet_web
-git init
-git add .
-git commit -m "Initial web package"
-git branch -M main
-git remote add origin <GitHubのリポジトリURL>
-git push -u origin main
+## 起動・確認
+```bash
+npm install
+npm run dev
+npm run test
+npm run build
 ```
+- `npm run test`：単体テスト・全ステージの総当たり・ボットによる全30ステージ通し（Vitest）。
+- `BALANCE=1 npm run test`：ボットで難しさを集計。`CALIBRATE=1`：ステージごとの硬さ（`CALIB`）を探し直す（出た値の8割を使い、上限3、1・2面は手で下げる）。`PROBE=<面>`（＋`MAXUP=1`）：1面を細かく見る。
+- 確かめ用：開発中か `?dbg=1` で `window.__df`（`start()`・`run(秒, 入力)`）。`?rafshim=1` で描画をタイマーで回す。
 
-## Netlify 公開手順
-1. Netlify で `Add new project`
-2. GitHub を選ぶ
-3. この `depthline_fleet_web` 専用リポジトリを接続する
-4. `netlify.toml` が読まれていることを確認する
-5. `Deploy site` を実行する
+## 構成
+- `src/game/`：純粋な TS（固定の刻み 1/60・seed 付き乱数）。表 `data.ts`、進行 `sim.ts`、無限と毎日 `modes.ts`、進みと改造 `progress.ts`、保存 `save.ts`（キー `depthline-fleet-v2:*`。Flutter 版の保存は読まない・消さない）。
+- `src/view/`：絵 `art.ts`、描画 `renderer.ts`、演出 `effects.ts`。
+- `src/ui/`：タイトル・海図・改造・戦闘。`src/audio/`：BGM（mp3）と効果音（WebAudio の合成音）。
+- `public/`：manifest（portrait）・アイコン・Service Worker（キャッシュ名 `depthline-fleet-v2`）・BGM。
 
-## Netlify で使う設定
-このパッケージでは、リポジトリのルートがそのまま Flutter プロジェクトです。
-
-`netlify.toml` の内容:
-- Build command: `bash scripts/netlify_build.sh`
-- Publish directory: `build/web`
-- SPA rewrite: `/* -> /index.html`
-
-Base directory:
-- **設定しない**
-- もしくは `/` のままにする
-
-補足:
-- 以前の monorepo 前提とは違い、このパッケージでは `src/depthline_fleet` の指定は不要です。
-
-## Build スクリプトの内容
-`scripts/netlify_build.sh` は次を行います。
-- Flutter `3.41.9` を取得
-- `flutter pub get`
-- `flutter precache --web`
-- `flutter build web --release`
-
-## 公開後の確認
-公開 URL を開いて次を確認してください。
-- 404 でない
-- タイトル画面が表示される
-- `出撃` でゲーム画面へ進む
-- `スコアアタック開始` で無限モードへ進む
-- 画面下左側の `左移動` / `右移動` 長押しで自艦が動く
-- 画面下右側の `左投下` / `右投下` で左右舷から爆雷が落ちる
-- スマホで開ける
-- Chrome の `ホーム画面に追加` でホーム画面に追加できる
-- 設定、通常ハイスコア、スコアアタックハイスコアが次回起動時にも残る
-
-## 未確認事項
-- このセッションでは `flutter` コマンドが使えなかったため、ローカルの `flutter build web --release` 成功確認は未実施です
-- Netlify 実サービスでの最終公開確認は、これからこのパッケージで行う前提です
+## 公開
+GitHub `hiro53y/depthline-fleet-web` の main に push すると、Cloudflare Workers Builds が `bash scripts/netlify_build.sh`（中身は `npm ci && npm run build`）を実行し、`npx wrangler deploy` で `build/web` を配る（`wrangler.toml`）。ビルドスクリプトの名前は Cloudflare の設定に合わせて昔のまま。

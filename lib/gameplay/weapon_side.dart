@@ -1,4 +1,0 @@
-enum WeaponSide {
-  left,
-  right,
-}
