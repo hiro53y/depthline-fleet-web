@@ -369,8 +369,8 @@ describe('保存', () => {
     kv.setItem('depthline-fleet-v2:settings', JSON.stringify({ bgm: 9, se: -1 }));
     expect(loadSettings(kv).bgm).toBe(1);
     expect(loadSettings(kv).se).toBe(0);
-    saveSettings({ bgm: 0.2, se: 0.3, vibrate: false, bigButtons: true }, kv);
-    expect(loadSettings(kv)).toEqual({ bgm: 0.2, se: 0.3, vibrate: false, bigButtons: true });
+    saveSettings({ bgm: 0.2, se: 0.3, vibrate: false, bigButtons: true, flip: true }, kv);
+    expect(loadSettings(kv)).toEqual({ bgm: 0.2, se: 0.3, vibrate: false, bigButtons: true, flip: true });
   });
 });
 

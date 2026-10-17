@@ -93,6 +93,8 @@ export function SettingsPanel({ settings, onSettings, onClose, onWipe }: { setti
         <label className="row"><span>BGM</span><input type="range" min={0} max={1} step={0.05} value={settings.bgm} onChange={(e) => set({ bgm: Number(e.target.value) })} /><b>{Math.round(settings.bgm * 100)}</b></label>
         <label className="row"><span>効果音</span><input type="range" min={0} max={1} step={0.05} value={settings.se} onChange={(e) => set({ se: Number(e.target.value) })} onPointerUp={() => playSe('boom')} /><b>{Math.round(settings.se * 100)}</b></label>
         <div className="row"><span>振動</span><button className={`toggle ${settings.vibrate ? 'on' : ''}`} onClick={() => set({ vibrate: !settings.vibrate })}>{settings.vibrate ? 'する' : 'しない'}</button></div>
+        <div className="row"><span>上下を反転</span><button className={`toggle ${settings.flip ? 'on' : ''}`} onClick={() => set({ flip: !settings.flip })}>{settings.flip ? '反転' : 'そのまま'}</button></div>
+        <p className="muted">スマホを縦に持っても画面が横になる時は、中身を回して縦に見せます。上下が逆に見える時は「上下を反転」を押してください。</p>
         <div className="row"><span>大きいボタン</span><button className={`toggle ${settings.bigButtons ? 'on' : ''}`} onClick={() => set({ bigButtons: !settings.bigButtons })}>{settings.bigButtons ? '大きく' : 'ふつう'}</button></div>
         {onWipe && (
           <div className="row danger">

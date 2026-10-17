@@ -11,6 +11,7 @@ import type { Progress, Settings } from '../game/types';
 import { banner, consume, newFx, tickFx, type Fx } from '../view/effects';
 import { draw, toField, viewportOf } from '../view/renderer';
 import { Help, Modal, SettingsPanel, fmt } from './common';
+import { toLocal } from '../orientation';
 
 export type BattleMode = { kind: 'stage'; id: number } | { kind: 'endless' } | { kind: 'daily' };
 
@@ -184,10 +185,10 @@ export function BattleScreen({ p, mode, settings, onSettings, onChange, onMap, o
   const fieldAt = (e: React.PointerEvent): [number, number] | null => {
     const el = wrap.current;
     if (!el) return null;
-    const r = el.getBoundingClientRect();
+    const [lx, ly] = toLocal(el, e.clientX, e.clientY);
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const v = viewportOf(Math.round(el.clientWidth * dpr), Math.round(el.clientHeight * dpr));
-    return toField(v, (e.clientX - r.left) * dpr, (e.clientY - r.top) * dpr);
+    return toField(v, lx * dpr, ly * dpr);
   };
   const dragging = useRef<number | null>(null);
   const onDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -197,7 +198,7 @@ export function BattleScreen({ p, mode, settings, onSettings, onChange, onMap, o
     if (pt[1] < WL + 60) {
       dragging.current = e.pointerId;
       held.current.targetX = pt[0];
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+      try { (e.target as HTMLElement).setPointerCapture?.(e.pointerId); } catch { /* 指が離れていた */ }
     } else if (pt[0] < b.ship.x) held.current.tapL = true;
     else held.current.tapR = true;
   };

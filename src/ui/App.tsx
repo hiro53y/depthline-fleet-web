@@ -6,6 +6,7 @@ import { newProgress } from '../game/progress';
 import { loadProgress, loadSettings, saveProgress, saveSettings, wipe } from '../game/save';
 import type { Difficulty, Progress, Settings } from '../game/types';
 import { BattleScreen, type BattleMode } from './BattleScreen';
+import { applyRot, computeRot, tryLock } from '../orientation';
 import { DockScreen } from './DockScreen';
 import { MapScreen } from './MapScreen';
 import { Title } from './Title';
@@ -19,8 +20,17 @@ export function App() {
   const [, setRev] = useState(0);
 
   useEffect(() => { setSeVolume(settings.se); setBgmVolume(settings.bgm); saveSettings(settings); }, [settings]);
+  // いつも縦に：縦に固定を頼み、横長のままなら中身を回す
   useEffect(() => {
-    const on = () => { unlockAudio(); resumeBgm(); };
+    const fit = () => applyRot(computeRot(settings.flip));
+    fit();
+    tryLock();
+    window.addEventListener('resize', fit);
+    window.screen.orientation?.addEventListener?.('change', fit);
+    return () => { window.removeEventListener('resize', fit); window.screen.orientation?.removeEventListener?.('change', fit); };
+  }, [settings.flip]);
+  useEffect(() => {
+    const on = () => { unlockAudio(); resumeBgm(); tryLock(); };
     window.addEventListener('pointerdown', on);
     window.addEventListener('keydown', on);
     return () => { window.removeEventListener('pointerdown', on); window.removeEventListener('keydown', on); };

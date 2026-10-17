@@ -14,7 +14,7 @@
   --sr: env(safe-area-inset-right, 0px);
   --st: env(safe-area-inset-top, 0px);
   --sb: env(safe-area-inset-bottom, 0px);
-  --frame: min(100vw, calc(100dvh * 0.6));
+  --frame: min(var(--vw, 100vw), calc(var(--vh, 100dvh) * 0.6));
   font-family: system-ui, -apple-system, 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic UI', sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -74,9 +74,9 @@ button:disabled { cursor: default; }
 .title-screen { justify-content: center; align-items: center; }
 .demo-sea { position: absolute; inset: 0; width: 100%; height: 100%; }
 .title-shade { position: absolute; inset: 0; background: linear-gradient(rgba(0, 10, 20, 0.15), rgba(0, 10, 20, 0.05) 30%, rgba(0, 8, 16, 0.65) 70%, rgba(0, 6, 12, 0.85)); }
-.title-box { position: relative; display: flex; flex-direction: column; align-items: center; gap: 28px; margin-top: 22vh; }
+.title-box { position: relative; display: flex; flex-direction: column; align-items: center; gap: 28px; margin-top: calc(var(--vh, 100vh) * 0.22); }
 .logo { text-align: center; filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.9)); }
-.logo-en { font-weight: 900; font-size: clamp(38px, 12vw, 64px); line-height: 0.95; letter-spacing: 0.06em; background: linear-gradient(#ffffff, #9fe7ff 50%, #3a9ac8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1px rgba(0, 30, 60, 0.6); font-style: italic; }
+.logo-en { font-weight: 900; font-size: clamp(38px, calc(var(--vw, 100vw) * 0.12), 64px); line-height: 0.95; letter-spacing: 0.06em; background: linear-gradient(#ffffff, #9fe7ff 50%, #3a9ac8); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-stroke: 1px rgba(0, 30, 60, 0.6); font-style: italic; }
 .logo-ja { margin-top: 10px; font-weight: 800; font-size: 15px; letter-spacing: 0.2em; color: var(--gold); }
 .title-menu { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .title-menu > .btn { min-width: 230px; }

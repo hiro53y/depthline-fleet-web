@@ -122,5 +122,5 @@ export interface Progress {
   cleared?: boolean;
 }
 
-export interface Settings { bgm: number; se: number; vibrate: boolean; bigButtons: boolean }
-export const DEFAULT_SETTINGS: Settings = { bgm: 0.5, se: 0.7, vibrate: true, bigButtons: false };
+export interface Settings { bgm: number; se: number; vibrate: boolean; bigButtons: boolean; flip: boolean }
+export const DEFAULT_SETTINGS: Settings = { bgm: 0.5, se: 0.7, vibrate: true, bigButtons: false, flip: false };
